@@ -1,0 +1,6 @@
+public class {{entity.name}} : I{{entity.name}}
+{
+    {{#entity.properties}}
+    public {{type}} {{name}} { get;set; }
+    {{/entity.properties}}
+}

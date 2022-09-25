@@ -1,0 +1,68 @@
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+
+[Route("api/[controller]")]
+public class {{entity.type}}Controller : ControllerBase, IController<ValueField>
+{
+    protected MeatContext context { get; set; }
+
+    public DbSet<ValueField> list => context.valueFields;
+
+    public ValueFieldController(MeatContext context)
+    {
+        this.context = context;
+    }
+
+    [HttpGet]
+    public ActionResult Get()
+    {
+        Response.Headers.Add("Content-Range", "ValueField 0-10000/10000");
+        return Ok(list);
+    }
+
+    [HttpGet("{id}")]
+    public ActionResult Get(Guid id)
+    {
+        var result = list.Find(id);
+        if (result is null)
+            return BadRequest("ValueField not found");
+        return Ok(result);
+    }
+
+    [HttpPost]
+    public ActionResult Add([FromBody] AddValueFieldRequest request)
+    {
+        var ValueField = new ValueField();
+        ValueField.name = request.name;
+        ValueField.primitiveType = request.primitiveType;
+        ValueField.entity = request.entity;
+        list.Add(ValueField);
+        context.SaveChanges();
+        return Ok(ValueField);
+    }
+
+    [HttpDelete("{id}")]
+    public ActionResult Delete(Guid id)
+    {
+        var ValueField = list.Find(id);
+        if (ValueField is null)
+            throw new Exception("ValueField not found");
+        list.Remove(ValueField);
+        context.SaveChanges();
+        return Ok(ValueField);
+    }
+
+    [HttpPut("{id}")]
+    public ActionResult Update(Guid id, [FromBody] UpdateValueFieldRequest request)
+    {
+        var ValueField = list.Find(id);
+        if (ValueField is null)
+            return BadRequest("ValueField not found");
+        ValueField.primitiveType = request.primitiveType;
+        ValueField.name = request.name;
+        ValueField.entity = request.entity;
+        context.SaveChanges();
+        return Ok(ValueField);
+
+    }
+}
